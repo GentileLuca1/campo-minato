@@ -1,0 +1,250 @@
+import random
+
+def parametri_griglia():
+    larghezza_griglia = int(input("Inserire la larghezza della griglia "))
+    lunghezza_griglia = int(input("Inserire la lunghezza della griglia "))
+    numero_mine = int(input("Inserire il numero di mine "))
+    return larghezza_griglia, lunghezza_griglia, numero_mine
+
+def crea_griglia(larghezza_griglia, lunghezza_griglia, numero_mine):
+    chiavi, mina, scoperto, bandiera, numero = [], [], [], [], []
+    numero_spazi = larghezza_griglia * lunghezza_griglia
+    for i in range(numero_spazi):
+        chiavi.append(i + 1)
+        mina.append(False)
+        scoperto.append(False)
+        bandiera.append(False)
+        numero.append(0)
+        
+    griglia = {chiavi[i] : {"mina" : mina[i], "stato" : {"scoperto" : scoperto[i], "bandiera" : bandiera[i]}, "numero" : numero[i]} for i in range(numero_spazi)}
+    return griglia
+
+def stampa_griglia(griglia, larghezza_griglia):
+    for spazio in griglia:
+        if spazio % larghezza_griglia == 0:
+            if griglia[spazio]["stato"]["scoperto"] == True:
+                if griglia[spazio]["numero"] == 0:
+                    print("0")
+                elif griglia[spazio]["numero"] == 1:
+                    print("1")
+                elif griglia[spazio]["numero"] == 2:
+                    print("2")
+                elif griglia[spazio]["numero"] == 3:
+                    print("3")
+                elif griglia[spazio]["numero"] == 4:
+                    print("4")
+                elif griglia[spazio]["numero"] == 5:
+                    print("5")
+                elif griglia[spazio]["numero"] == 6:
+                    print("6")
+                elif griglia[spazio]["numero"] == 7:
+                    print("7")
+                else:
+                    print("8")
+            elif griglia[spazio]["stato"]["bandiera"] == True:
+                print("B")
+            else:
+                print("O")
+                
+        else:
+            if griglia[spazio]["stato"]["scoperto"] == True:
+                if griglia[spazio]["numero"] == 0:
+                    print("0", end = " ")
+                elif griglia[spazio]["numero"] == 1:
+                    print("1", end = " ")
+                elif griglia[spazio]["numero"] == 2:
+                    print("2", end = " ")
+                elif griglia[spazio]["numero"] == 3:
+                    print("3", end = " ")
+                elif griglia[spazio]["numero"] == 4:
+                    print("4", end = " ")
+                elif griglia[spazio]["numero"] == 5:
+                    print("5", end = " ")
+                elif griglia[spazio]["numero"] == 6:
+                    print("6", end = " ")
+                elif griglia[spazio]["numero"] == 7:
+                    print("7", end = " ")
+                else:
+                    print("8", end = " ")
+            elif griglia[spazio]["stato"]["bandiera"] == True:
+                print("B", end = " ")
+            else:
+                print("O", end = " ")
+
+def piazza_mine(griglia, numero_mine, spazio_selezionato):           
+    if spazio_selezionato % larghezza_griglia == 1:
+        vicini = [0, -larghezza_griglia, 1, larghezza_griglia, larghezza_griglia + 1]
+    elif spazio_selezionato % larghezza_griglia == 0:
+        vicini = [0, -larghezza_griglia - 1, -larghezza_griglia, - 1, larghezza_griglia - 1, larghezza_griglia]
+    else:
+        vicini = [0, -larghezza_griglia - 1, -larghezza_griglia, -larghezza_griglia + 1, -1, 1, larghezza_griglia - 1, larghezza_griglia, larghezza_griglia + 1]
+            
+    for i in range(len(vicini)):
+        vicini[i] += spazio_selezionato
+
+    mine_piazzate = 0
+    while mine_piazzate < numero_mine:
+        mina = random.randint(1, len(griglia))
+        if (mina not in vicini) and (griglia[mina]["mina"] == False):
+            griglia[mina]["mina"] = True
+            mine_piazzate += 1
+
+def seleziona_spazio(griglia, larghezza_griglia, lunghezza_griglia):
+    riga = -1
+    colonna = -1
+    riga = int(input("Inserire riga "))
+    while not (0 < riga <= larghezza_griglia):
+        riga = int(input("La riga inserita è fuori dai limiti, inserire una riga valida "))
+    colonna = int(input("Inserire colonna "))
+    while not (0 < colonna <= lunghezza_griglia):
+        colonna = int(input("La colonna inserita è fuori dai limiti, inserire una colonna valida "))
+    return (larghezza_griglia * (riga - 1)) + colonna
+
+def calcola_numeri(griglia, larghezza_griglia):
+    for spazio in griglia:
+        mine_adiacenti = 0
+        if spazio % larghezza_griglia == 1:
+            vicini = [-larghezza_griglia, -larghezza_griglia + 1, 1, larghezza_griglia, larghezza_griglia + 1]
+        elif spazio % larghezza_griglia == 0:
+            vicini = [-larghezza_griglia - 1, -larghezza_griglia, - 1, larghezza_griglia - 1, larghezza_griglia]
+        else:
+            vicini = [-larghezza_griglia - 1, -larghezza_griglia, -larghezza_griglia + 1, -1, 1, larghezza_griglia - 1, larghezza_griglia, larghezza_griglia + 1]
+        
+        for vicino in vicini:
+            indice_vicino = spazio + vicino
+            if 0 < indice_vicino < len(griglia) and griglia[indice_vicino]["mina"]:
+                mine_adiacenti += 1
+        griglia[spazio]["numero"] = mine_adiacenti
+
+def scopri_spazio(griglia, larghezza_griglia, spazio_selezionato):
+    griglia[spazio_selezionato]["stato"]["scoperto"] = True
+    if griglia[spazio_selezionato]["numero"] == 0:
+        for spazio in griglia:
+            if spazio_selezionato % larghezza_griglia == 1:
+                vicini = [-larghezza_griglia, 1, larghezza_griglia, larghezza_griglia + 1]
+            elif spazio_selezionato % larghezza_griglia == 0:
+                vicini = [-larghezza_griglia - 1, -larghezza_griglia, - 1, larghezza_griglia - 1, larghezza_griglia]
+            else:
+                vicini = [-larghezza_griglia - 1, -larghezza_griglia, -larghezza_griglia + 1, -1, 1, larghezza_griglia - 1, larghezza_griglia, larghezza_griglia + 1]
+            
+            for i in range(len(vicini)):
+                vicini[i] += spazio_selezionato
+
+            controllato = True
+            for vicino in vicini:
+                if 0 < vicino <= len(griglia):
+                    if griglia[vicino]["stato"]["scoperto"] == False:
+                        controllato = False
+                        griglia[vicino]["stato"]["scoperto"] = True
+
+            for vicino in vicini:
+                if 0 < vicino <= len(griglia):
+                    if (griglia[vicino]["numero"] == 0) and (controllato == False):
+                        scopri_spazio(griglia, larghezza_griglia, vicino)
+
+def gestisci_bandiera(griglia, spazio_selezionato):
+    if griglia[spazio_selezionato]["stato"]["bandiera"]:
+        griglia[spazio_selezionato]["stato"]["bandiera"] = False
+    else:
+        griglia[spazio_selezionato]["stato"]["bandiera"] = True
+
+def ricomincia(griglia, primo_selezionato):
+    for spazio in griglia:
+        griglia[spazio]["stato"]["scoperto"] = False
+        griglia[spazio]["stato"]["bandiera"] = False
+
+esci = False
+while esci == False:
+    
+    larghezza_griglia, lunghezza_griglia, numero_mine = parametri_griglia()
+    griglia = crea_griglia(larghezza_griglia, lunghezza_griglia, numero_mine)
+    partita_finita = False
+    while partita_finita == False:
+        
+        print("\n\n")
+        stampa_griglia(griglia, larghezza_griglia)
+        print("\n\n")
+        print("Seleziona il primo spazio da scoprire")
+        spazio_selezionato = seleziona_spazio(griglia, larghezza_griglia, lunghezza_griglia)
+        piazza_mine(griglia, numero_mine, spazio_selezionato)
+        calcola_numeri(griglia, larghezza_griglia)
+        scopri_spazio(griglia, larghezza_griglia, spazio_selezionato)
+        
+        primo_selezionato = True
+        while primo_selezionato == True:
+        
+            print("\n\n")
+            stampa_griglia(griglia, larghezza_griglia)
+            print("\n\n")
+            print("Seleziona spazio")
+            spazio_selezionato = seleziona_spazio(griglia, larghezza_griglia, lunghezza_griglia)
+            while griglia[spazio_selezionato]["stato"]["scoperto"]:
+                print("Lo spazio selezionato è già stato scoperto! inserire uno spazio valido")
+                spazio_selezionato = seleziona_spazio(griglia, larghezza_griglia, lunghezza_griglia)
+            print("Lo spazio è stato selezionato, cosa si desidera fare?")
+            print("1) Scopri spazio")
+            print("2) Piazza/togli bandiera")
+            decisione = input()
+            if decisione == "1":
+                scopri_spazio(griglia, larghezza_griglia, spazio_selezionato)
+                if griglia[spazio_selezionato]["mina"]:
+                    print("Lo spazio è una mina!")
+                    print("Hai perso!")
+                    print("\n\n\nCosa si desidera fare?")
+                    print("1) Riprova la stessa griglia")
+                    print("2) Nuova partita, stessi parametri")
+                    print("3) Nuova partita, scegli nuovi parametri")
+                    print("4) Esci")
+                    decisione = input()
+                    if decisione == "1":
+                        ricomincia(griglia)
+                        primo_selezionato = False
+                    elif decisione == "2":
+                        griglia = crea_griglia(larghezza_griglia, lunghezza_griglia, numero_mine)
+                        primo_selezionato = False
+                    elif decisione == "3":
+                        primo_selezionato = False
+                        partita_finita = True
+                    elif decisione == "4":
+                        primo_selezionato = False
+                        partita_finita = True
+                        esci = True
+                    else:
+                        print("Scelta invalida")
+                    
+            elif decisione == "2":
+                gestisci_bandiera(griglia, spazio_selezionato)
+            else:
+                print("Scelta invalida")
+
+            conta_scoperti = 0
+            for chiave in griglia:
+                if griglia[chiave]["stato"]["scoperto"]:
+                    conta_scoperti += 1
+            if conta_scoperti == (larghezza_griglia * lunghezza_griglia) - numero_mine:
+                print("Hai vinto!")
+                for spazio in griglia:
+                    if griglia[spazio]["mina"]:
+                        griglia[spazio]["stato"]["bandiera"] = True
+                stampa_griglia(griglia, larghezza_griglia)
+                print("\n\n\nCosa si desidera fare?")
+                print("1) Riprova la stessa griglia")
+                print("2) Nuova partita, stessi parametri")
+                print("3) Nuova partita, cambia parametri")
+                print("4) Esci")
+                decisione = input()
+                if decisione == "1":
+                    ricomincia(griglia)
+                    primo_selezionato = False
+                elif decisione == "2":
+                    griglia = crea_griglia(larghezza_griglia, lunghezza_griglia, numero_mine)
+                    primo_selezionato = False
+                elif decisione == "3":
+                    primo_selezionato = False
+                    partita_finita = True
+                elif decisione == "4":
+                    primo_selezionato = False
+                    partita_finita = True
+                    esci = True
+                else:
+                    print("Scelta invalida")
